@@ -20,6 +20,7 @@ RUN mkdir -p bin && \
     javac -cp "lib/*" src/api/AppServer.java src/db/DatabaseManager.java src/exceptions/*.java src/models/*.java src/service/*.java src/utils/*.java -d bin
 
 # Expose port for Hugging Face
+ENV PORT=7860
 EXPOSE 7860
 
 # Run the application
