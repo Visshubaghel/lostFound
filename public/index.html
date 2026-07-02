@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost & Found AI - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <main class="glass-container">
+        <header>
+            <h1>AI Lost & Found</h1>
+            <p>BITS Pilani Hyderabad Cultural Fest</p>
+        </header>
+        
+        <section id="login-section" class="tab-content active">
+            <h2>Welcome</h2>
+            <p style="margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">
+                Enter your QR Token to access your dashboard.
+            </p>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="login-qr">Your QR Token</label>
+                    <input type="text" id="login-qr" required placeholder="Owner: BITS-PPPP | Finder: BITS-FFFF">
+                </div>
+                <button type="submit" class="btn-primary">Access Dashboard</button>
+            </form>
+            <div id="login-feedback" class="feedback"></div>
+        </section>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>
