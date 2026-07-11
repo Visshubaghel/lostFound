@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <img src="${n.verificationImage}" class="verification-img" onclick="openImageModal('${n.verificationImage}')" title="Click to enlarge" />
                                 <p>If this matches, please schedule a meetup to return it securely.</p>
                                 <form onsubmit="submitMeetup(event, '${n.id}')">
-                                    <input type="text" id="phone-${n.id}" placeholder="Your Phone Number" required style="width:100%; margin-bottom:10px; padding:8px;" />
+                                    <input type="text" id="phone-${n.id}" pattern="\\d{10}" title="Must be exactly 10 digits" placeholder="Your Phone Number (10 digits)" required style="width:100%; margin-bottom:10px; padding:8px;" />
                                     <select id="location-${n.id}" required style="width:100%; margin-bottom:10px; padding:8px; background:rgba(25,25,25,0.8); color:var(--text-main); border:1px solid var(--glass-border); border-radius:6px;">
                                         <option value="">Select Meeting Place</option>
                                         <option value="Mess 1">Mess 1</option>
@@ -143,9 +143,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.submitMeetup = async (e, notifId) => {
         e.preventDefault();
-        const phone = document.getElementById(`phone-${notifId}`).value;
+        const phone = document.getElementById(`phone-${notifId}`).value.trim();
         const location = document.getElementById(`location-${notifId}`).value;
         const time = document.getElementById(`time-${notifId}`).value;
+        
+        // Validation: Exactly 10 digits
+        if (!/^\\d{10}$/.test(phone)) {
+            alert("Please enter exactly 10 digits for the phone number.");
+            return;
+        }
+
+        // Validation: Future Date only
+        const selectedDate = new Date(time);
+        const now = new Date();
+        if (selectedDate <= now) {
+            alert("Meeting time must be in the future!");
+            return;
+        }
         
         await fetch('/api/meetup/schedule', {
             method: 'POST',
