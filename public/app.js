@@ -7,16 +7,17 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const code = document.getElementById('login-qr').value.trim();
             const feedback = document.getElementById('login-feedback');
+            const regNo = document.getElementById('login-reg') ? document.getElementById('login-reg').value.trim() : '';
             
-            if (code.startsWith('BITS-P')) {
+            if (code === 'BITS-PPPP' && regNo === '1111111111') {
                 sessionStorage.setItem('qrToken', code);
-                window.location.href = '/owner_dashboard.html';
-            } else if (code.startsWith('BITS-F')) {
+                window.location.href = '/dashboard.html';
+            } else if (code === 'BITS-FFFF' && regNo === '2222222222') {
                 sessionStorage.setItem('qrToken', code);
-                window.location.href = '/finder_dashboard.html';
+                window.location.href = '/dashboard.html';
             } else {
                 feedback.className = 'feedback error';
-                feedback.textContent = 'Invalid QR Token format.';
+                feedback.textContent = 'Invalid QR Token or Registration Number combination.';
             }
         });
     }

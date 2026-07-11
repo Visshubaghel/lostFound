@@ -1,0 +1,4 @@
+The Frontend (HTML/CSS/JS): A sleek, black-and-white premium UI where users scan QR codes to enter as either an Owner (who registers an item) or a Finder (who finds an item).
+The Backend (Java 17): A custom lightweight HTTP server built entirely in core Java (com.sun.net.httpserver) without heavy frameworks like Spring Boot. This handles API requests.
+The AI Brain (Gemini Vision API): When a user uploads an image, the Java backend sends the image to Google's Gemini AI. Gemini analyzes the image, generates a text description, and most importantly, converts the image into a Vector Embedding (an array of numbers representing the visual features of the item).
+The Matchmaker (Cosine Similarity): When a Finder uploads an item, the Java code calculates the "Cosine Similarity" between the vector of the found item and all registered items. If the similarity score is over 85%, it declares a match!
