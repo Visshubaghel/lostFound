@@ -1,0 +1,110 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+
+\title{\textbf{AI-Powered Lost \& Found System} \\ \large Final Project Report}
+\author{Vishwas Baghel}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Problem Formulation}
+Large campuses and communities struggle significantly with the management of lost and found items. Traditional manual tracking relies heavily on human memory, is prone to false claims, and requires significant administrative overhead. The core problem is the lack of a deterministic, automated system that can accurately match a lost item with a found item without relying on human interpretation.
+
+To solve this, this project introduces a Java-based backend system that leverages Artificial Intelligence (specifically, the Google Gemini Vision API) to mathematically match lost items with found items based on visual and textual analysis, completely removing human error from the matching process.
+
+\subsection{Problem Definition (Inputs, Outputs, Metrics)}
+\begin{itemize}
+    \item \textbf{Inputs:} Users upload an image (JPEG/PNG) of a lost or found item along with a secure QR Token and a 10-digit Registration Number for authentication.
+    \item \textbf{Processing:} The Java backend sends the image to the Gemini Vision API, which analyzes the visual traits and returns a text descriptor and a high-dimensional mathematical vector (Embedding). When a "Found" item is uploaded, the system calculates the \textbf{Cosine Similarity} between its vector and all "Lost" item vectors currently residing in the database.
+    \item \textbf{Outputs:} If the Cosine Similarity score exceeds the threshold of 0.85 (85\%), the system automatically generates a "Match Notification" for both the Owner and Finder. It swaps the images so they can visually cross-verify the item and provides a secure interface to schedule a meetup (time, location, and phone number).
+    \item \textbf{Success Metrics:} 
+    \begin{itemize}
+        \item Achieving $>$85\% mathematical matching accuracy for similar items.
+        \item 100\% secure matching (owners only see finders of their specific item).
+        \item Zero thread-blocking during heavy AI API calls to ensure high concurrency.
+        \item Persistent, durable storage of all items and notifications in a remote database.
+    \end{itemize}
+\end{itemize}
+
+\section{Solution Description}
+The proposed solution is a microservices-oriented architecture where a robust Java backend acts as the central coordinator. The system utilizes a frontend HTML/JS interface featuring a modern "Glassmorphism" UI to collect user inputs. 
+
+The backend is built around a custom HTTP server that handles RESTful requests. Upon receiving an image, the backend asynchronously communicates with the Gemini AI model to extract features. These features are stored in a NoSQL MongoDB Atlas cluster. When a match is triggered by the Cosine Similarity algorithm, the system updates the database with a pending notification, which is immediately reflected on the user's dashboard.
+
+\section{UML Class Diagram}
+% INSTRUCTIONS FOR OVERLEAF:
+% 1. Export your UML diagram as an image file (e.g., uml_diagram.png or uml_diagram.jpg).
+% 2. Click the "Upload" icon in the top left of your Overleaf project to upload the image file.
+% 3. Uncomment the three lines below (remove the % symbols) and make sure the filename matches your uploaded image.
+
+\begin{figure}[h!]
+    \centering
+    % \includegraphics[width=\textwidth]{uml_diagram.png} 
+    \caption{UML Class Diagram of the Java Backend Architecture}
+    \label{fig:uml_diagram}
+\end{figure}
+
+The UML Class diagram (Figure \ref{fig:uml_diagram}) illustrates the core architecture:
+\begin{itemize}
+    \item \textbf{AppServer:} The main entry point containing inner classes that implement the \texttt{HttpHandler} interface for REST API routing.
+    \item \textbf{ItemRegistry:} Acts as the service layer, managing PriorityQueues and interfacing with the Database.
+    \item \textbf{DatabaseManager:} A strict Singleton class maintaining the connection pool to MongoDB.
+    \item \textbf{AIProcessor \& CosineSimilarity:} Static utility classes abstracting the complex mathematical and API logic.
+    \item \textbf{Item \& Notification:} Standard POJO models encapsulating domain data.
+    \item \textbf{Match$<$T$>$:} A generic class used to pair an entity with its computed similarity score.
+\end{itemize}
+
+\section{Explanation of Chosen Java Features}
+This project strictly adheres to Object-Oriented Programming (OOP) principles and implements several advanced Java features as required by the syllabus:
+
+\subsection{OOP Principles Demonstrated (Syllabus Weeks 1-3)}
+\begin{itemize}
+    \item \textbf{Encapsulation:} Domain models such as \texttt{Item.java} and \texttt{Notification.java} use private fields with public getters and setters to protect data integrity and prevent unauthorized state modifications.
+    \item \textbf{Polymorphism:} The HTTP server routes utilize multiple handlers (e.g., \texttt{RegisterItemHandler}, \texttt{FoundItemHandler}) that all implement the base \texttt{HttpHandler} interface, overriding the \texttt{handle()} method to provide specific routing logic.
+\end{itemize}
+
+\subsection{Advanced Features}
+\begin{itemize}
+    \item \textbf{Java Generics (Syllabus Week 5):} A custom \texttt{Match$<$T$>$} class was implemented. This allows the algorithmic matching logic to generically rank and sort \texttt{Item} objects, \texttt{User} objects, or any future entity safely without type-casting exceptions.
+    \item \textbf{Collections Framework (Syllabus Week 6):} A \texttt{PriorityQueue} is utilized in \texttt{ItemRegistry.java} to automatically sort AI matches by their similarity score, ensuring the highest mathematical match is evaluated first. \texttt{ConcurrentHashMap} is utilized for thread-safe caching.
+    \item \textbf{Multithreading \& Concurrency (Syllabus Week 9):} Because external AI API calls introduce significant network latency, \texttt{CompletableFuture} and an \texttt{ExecutorService} thread pool are utilized. This allows the Java server to process image analysis asynchronously without blocking the main HTTP listener thread.
+    \item \textbf{Exception Handling (Syllabus Week 7):} Custom checked exceptions (\texttt{ItemNotRegisteredException}, \texttt{SimilarityBelowThresholdException}) were engineered to catch mathematical failures gracefully and return clean HTTP 500 error payloads to the frontend.
+    \item \textbf{Singleton Design Pattern:} \texttt{DatabaseManager.java} is implemented as a strict Singleton to guarantee that only a single database connection pool is spawned across all asynchronous threads, thereby preventing severe memory leaks.
+\end{itemize}
+
+\section{Execution and Integration Instructions}
+
+\subsection{Integration with a Simulated Environment}
+The system fulfills the constraint of integrating with an existing system module via two methods:
+\begin{enumerate}
+    \item \textbf{Mock REST APIs:} The system exposes a fully functional REST API architecture using Java's built-in \texttt{HttpServer}. The frontend UI simulates client-side integration by sending JSON payloads via standard HTTP \texttt{POST} requests.
+    \item \textbf{Database Integration:} The backend securely connects via the official \texttt{mongo-java-driver} (the NoSQL equivalent of JDBC) to a live, shared database on MongoDB Atlas, fulfilling the shared database integration constraint.
+\end{enumerate}
+
+\subsection{How to Run the Program (Local \& Testing)}
+\begin{enumerate}
+    \item \textbf{Prerequisites:} Ensure Java Development Kit (JDK 11 or 17) is installed.
+    \item \textbf{Environment Variables:} Set \texttt{MONGODB\_URI} and \texttt{GEMINI\_API\_KEY} in your system environment.
+    \item \textbf{Unit Testing:} Comprehensive unit tests are written using JUnit 5 to prove algorithmic correctness. To run the tests, open a terminal in the project root and execute the provided batch script: \\
+    \texttt{> .$\backslash$test.bat}
+    \item \textbf{Compilation:} Compile the source files into the \texttt{bin} directory: \\
+    \texttt{> javac -cp "lib/*" src/api/*.java src/db/*.java src/exceptions/*.java src/models/*.java src/service/*.java src/utils/*.java -d bin}
+    \item \textbf{Execution:} Start the server: \\
+    \texttt{> java -cp "bin;lib/*" api.AppServer}
+    \item \textbf{Access:} Open a web browser and navigate to \texttt{http://localhost:8080}.
+\end{enumerate}
+
+\subsection{Cloud Deployment}
+This project is fully containerized using a \texttt{Dockerfile} and is actively hosted as a live, public Microservice on Hugging Face Spaces, proving its real-world readiness.
+
+\end{document}
