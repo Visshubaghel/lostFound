@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const time = document.getElementById(`time-${notifId}`).value;
         
         // Validation: Exactly 10 digits
-        if (!/^\\d{10}$/.test(phone)) {
+        if (!/^\d{10}$/.test(phone)) {
             alert("Please enter exactly 10 digits for the phone number.");
             return;
         }
